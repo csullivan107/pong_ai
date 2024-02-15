@@ -41,6 +41,12 @@ max_vertical_velocity = ball_velocity_x * math.tan(max_angle)
 if abs(ball_velocity_y) > abs(max_vertical_velocity):
     ball_velocity_y = max_vertical_velocity * random.choice([-1, 1])
 
+# Set up the score
+score = 0
+
+# Set up the font
+font = pygame.font.SysFont(None, 48)
+
 # Set up the game loop
 running = True
 while running:
@@ -73,6 +79,9 @@ while running:
         # Reverse horizontal velocity
         ball_velocity_x = -ball_velocity_x
 
+        # Increase the score
+        score += 1
+
     # Check for collision with the top or bottom edge of the window
     if ball_y - ball_radius <= 0 or ball_y + ball_radius >= window_height:
         ball_velocity_y = -ball_velocity_y
@@ -89,6 +98,10 @@ while running:
 
     # Draw the ball
     pygame.draw.circle(window, BLACK, (int(ball_x), int(ball_y)), ball_radius)
+
+    # Draw the score at the top of the window
+    score_text = font.render("Score: " + str(score), True, BLACK)
+    window.blit(score_text, (20, 20))
 
     # Update the display
     pygame.display.flip()
