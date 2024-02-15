@@ -1,6 +1,7 @@
 import pygame
 import sys
 import random
+import math
 
 # Initialize Pygame
 pygame.init()
@@ -34,6 +35,12 @@ ball_y = window_height // 2
 ball_velocity_x = random.uniform(2, 5)  # Random initial velocity towards the right side
 ball_velocity_y = random.uniform(-2, 2)  # Random initial vertical velocity
 
+# Adjust vertical velocity to ensure angle does not exceed 45 degrees
+max_angle = math.radians(45)  # Convert 45 degrees to radians
+max_vertical_velocity = ball_velocity_x * math.tan(max_angle)
+if abs(ball_velocity_y) > abs(max_vertical_velocity):
+    ball_velocity_y = max_vertical_velocity * random.choice([-1, 1])
+
 # Set up the game loop
 running = True
 while running:
@@ -56,6 +63,14 @@ while running:
     # Check for collisions with the paddle
     if (ball_x + ball_radius >= rect_x and ball_x - ball_radius <= rect_x + rect_width and
             ball_y + ball_radius >= rect_y and ball_y - ball_radius <= rect_y + rect_height):
+        # Calculate normalized distance from the center of the paddle to the point of collision
+        paddle_center_y = rect_y + rect_height / 2
+        distance_from_center = (ball_y - paddle_center_y) / (rect_height / 2)
+
+        # Adjust vertical velocity based on the position of collision
+        ball_velocity_y = max_vertical_velocity * distance_from_center
+
+        # Reverse horizontal velocity
         ball_velocity_x = -ball_velocity_x
 
     # Check for collision with the top or bottom edge of the window
