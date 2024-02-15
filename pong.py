@@ -1,5 +1,7 @@
 import pygame
 import sys
+import random
+import math
 
 # Initialize Pygame
 pygame.init()
@@ -24,6 +26,21 @@ rect_y = window_height // 2 - rect_height // 2
 move_speed = int(2 * 1.5)  # Increased by 50%
 move_speed += int(move_speed * 0.5)  # Increase by 50% more
 
+# Set up the ball
+ball_radius = 25  # Half as big
+ball_x = window_width // 2
+ball_y = window_height // 2
+
+# Set up the ball velocity
+ball_velocity_x = random.uniform(2, 5)  # Random initial velocity towards the right side
+ball_velocity_y = random.uniform(-2, 2)  # Random initial vertical velocity
+
+# Adjust vertical velocity to ensure angle does not exceed 45 degrees
+max_angle = math.radians(45)  # Convert 45 degrees to radians
+max_vertical_velocity = ball_velocity_x * math.tan(max_angle)
+if abs(ball_velocity_y) > abs(max_vertical_velocity):
+    ball_velocity_y = max_vertical_velocity * random.choice([-1, 1])
+
 # Set up the game loop
 running = True
 while running:
@@ -39,11 +56,39 @@ while running:
     if keys[pygame.K_DOWN]:
         rect_y += move_speed
 
+    # Update ball position
+    ball_x += ball_velocity_x
+    ball_y += ball_velocity_y
+
+    # Check for collisions with the paddle
+    if (ball_x + ball_radius >= rect_x and ball_x - ball_radius <= rect_x + rect_width and
+            ball_y + ball_radius >= rect_y and ball_y - ball_radius <= rect_y + rect_height):
+        # Calculate normalized distance from the center of the paddle to the point of collision
+        paddle_center_y = rect_y + rect_height / 2
+        distance_from_center = (ball_y - paddle_center_y) / (rect_height / 2)
+
+        # Adjust vertical velocity based on the position of collision
+        ball_velocity_y = max_vertical_velocity * distance_from_center
+
+        # Reverse horizontal velocity
+        ball_velocity_x = -ball_velocity_x
+
+    # Check for collision with the top or bottom edge of the window
+    if ball_y - ball_radius <= 0 or ball_y + ball_radius >= window_height:
+        ball_velocity_y = -ball_velocity_y
+
+    # Check for collision with the right or left edge of the window
+    if ball_x + ball_radius >= window_width or ball_x - ball_radius <= 0:
+        ball_velocity_x = -ball_velocity_x
+
     # Fill the window with white
     window.fill(WHITE)
 
     # Draw the rectangle
     pygame.draw.rect(window, BLACK, (rect_x, rect_y, rect_width, rect_height))
+
+    # Draw the ball
+    pygame.draw.circle(window, BLACK, (int(ball_x), int(ball_y)), ball_radius)
 
     # Update the display
     pygame.display.flip()
