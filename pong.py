@@ -37,7 +37,7 @@ score = 0
 font = pygame.font.SysFont(None, 48)
 
 # Define difficulty increase rates
-speed_increase_rate = 1.0  # How much to increase the ball speed per point
+speed_increase_rate = 0.5  # How much to increase the ball speed per point
 
 def reset_ball():
     global ball_x, ball_y, ball_velocity_x, ball_velocity_y, score
@@ -69,7 +69,10 @@ while running:
         rect_y += move_speed
 
     # Ensure the paddle stays within the window boundaries
-    rect_y = max(min(rect_y, window_height - rect_height), 0)
+    if rect_y < 0:
+        rect_y = 0
+    if rect_y + rect_height > window_height:
+        rect_y = window_height - rect_height
 
     # Update ball position
     ball_x += ball_velocity_x
