@@ -148,6 +148,7 @@ while running:
     pygame.display.flip()
 
     # git change to teach
+    # i like where i am at
 
 # Quit Pygame
 pygame.quit()
