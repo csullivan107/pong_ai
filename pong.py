@@ -15,6 +15,8 @@ pygame.display.set_caption("Move Rectangle with Arrow Keys")
 # Set up colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+COURT_COLOR = (245, 222, 179)  # A tan color for the basketball court
+LINE_COLOR = (255, 255, 255)   # White lines for the court
 
 # Set up the rectangle
 rect_width = 25  # Half as thick
@@ -75,6 +77,20 @@ def game_over_screen():
                     pygame.quit()
                     sys.exit()
 
+def draw_court():
+    # Fill the background with the court color
+    window.fill(COURT_COLOR)
+
+    # Draw half-court line
+    pygame.draw.line(window, LINE_COLOR, (window_width // 2, 0), (window_width // 2, window_height), 5)
+
+    # Draw the three-point arcs
+    pygame.draw.arc(window, LINE_COLOR, (window_width // 2 - 200, window_height // 2 - 200, 400, 400), math.radians(0), math.radians(180), 5)
+    pygame.draw.arc(window, LINE_COLOR, (window_width // 2 - 200, window_height // 2 - 200, 400, 400), math.radians(180), math.radians(360), 5)
+
+    # Draw the keys
+    pygame.draw.rect(window, LINE_COLOR, (window_width // 2 - 50, window_height // 2 - 150, 100, 300), 5)
+
 # Reset the ball at the beginning
 reset_ball()
 
@@ -131,8 +147,8 @@ while running:
     if ball_x - ball_radius <= 0:
         game_over_screen()
 
-    # Fill the window with white
-    window.fill(WHITE)
+    # Draw the court
+    draw_court()
 
     # Draw the rectangle
     pygame.draw.rect(window, BLACK, (rect_x, rect_y, rect_width, rect_height))
@@ -146,9 +162,6 @@ while running:
 
     # Update the display
     pygame.display.flip()
-
-    # git change to teach
-    # i like where i am at
 
 # Quit Pygame
 pygame.quit()
