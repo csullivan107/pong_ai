@@ -23,29 +23,60 @@ rect_x = 50
 rect_y = window_height // 2 - rect_height // 2
 
 # Set up movement speed
-move_speed = int(2 * 1.5)  # Increased by 50%
-move_speed += int(move_speed * 0.5)  # Increase by 50% more
+move_speed = 5
 
 # Set up the ball
 ball_radius = 25  # Half as big
 ball_x = window_width // 2
 ball_y = window_height // 2
 
-# Set up the ball velocity
-ball_velocity_x = random.uniform(2, 5)  # Random initial velocity towards the right side
-ball_velocity_y = random.uniform(-2, 2)  # Random initial vertical velocity
-
-# Adjust vertical velocity to ensure angle does not exceed 45 degrees
-max_angle = math.radians(45)  # Convert 45 degrees to radians
-max_vertical_velocity = ball_velocity_x * math.tan(max_angle)
-if abs(ball_velocity_y) > abs(max_vertical_velocity):
-    ball_velocity_y = max_vertical_velocity * random.choice([-1, 1])
-
 # Set up the score
 score = 0
 
 # Set up the font
 font = pygame.font.SysFont(None, 48)
+large_font = pygame.font.SysFont(None, 64)  # Larger font for high score
+
+# Define difficulty increase rates
+speed_increase_rate = 0.5  # How much to increase the ball speed per point
+
+def reset_ball():
+    global ball_x, ball_y, ball_velocity_x, ball_velocity_y, score
+    ball_x = window_width // 2
+    ball_y = window_height // 2
+    ball_velocity_x = random.uniform(2, 5)
+    ball_velocity_y = random.uniform(-1, 1)
+    while abs(ball_velocity_y / ball_velocity_x) > math.tan(math.radians(45)):
+        ball_velocity_y = random.uniform(-1, 1)
+        ball_velocity_x = random.uniform(2, 5)
+    score = 0
+
+def game_over_screen():
+    global running
+    while True:
+        window.fill(WHITE)
+        game_over_text = large_font.render("Game Over", True, BLACK)
+        score_text = large_font.render("Final Score: " + str(score), True, BLACK)
+        restart_text = font.render("Press R to Restart or Q to Quit", True, BLACK)
+        window.blit(game_over_text, (window_width // 2 - game_over_text.get_width() // 2, window_height // 3))
+        window.blit(score_text, (window_width // 2 - score_text.get_width() // 2, window_height // 2))
+        window.blit(restart_text, (window_width // 2 - restart_text.get_width() // 2, window_height // 2 + 50))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    reset_ball()
+                    return
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
+
+# Reset the ball at the beginning
+reset_ball()
 
 # Set up the game loop
 running = True
@@ -62,6 +93,12 @@ while running:
     if keys[pygame.K_DOWN]:
         rect_y += move_speed
 
+    # Ensure the paddle stays within the window boundaries
+    if rect_y < 0:
+        rect_y = 0
+    if rect_y + rect_height > window_height:
+        rect_y = window_height - rect_height
+
     # Update ball position
     ball_x += ball_velocity_x
     ball_y += ball_velocity_y
@@ -74,10 +111,10 @@ while running:
         distance_from_center = (ball_y - paddle_center_y) / (rect_height / 2)
 
         # Adjust vertical velocity based on the position of collision
-        ball_velocity_y = max_vertical_velocity * distance_from_center
+        ball_velocity_y = 5 * distance_from_center
 
-        # Reverse horizontal velocity
-        ball_velocity_x = -ball_velocity_x
+        # Reverse horizontal velocity and increase speed
+        ball_velocity_x = -ball_velocity_x * (1 + speed_increase_rate / 10)
 
         # Increase the score
         score += 1
@@ -86,9 +123,13 @@ while running:
     if ball_y - ball_radius <= 0 or ball_y + ball_radius >= window_height:
         ball_velocity_y = -ball_velocity_y
 
-    # Check for collision with the right or left edge of the window
-    if ball_x + ball_radius >= window_width or ball_x - ball_radius <= 0:
+    # Check for collision with the right edge of the window
+    if ball_x + ball_radius >= window_width:
         ball_velocity_x = -ball_velocity_x
+
+    # Check for collision with the left edge of the window (reset game)
+    if ball_x - ball_radius <= 0:
+        game_over_screen()
 
     # Fill the window with white
     window.fill(WHITE)
@@ -105,6 +146,9 @@ while running:
 
     # Update the display
     pygame.display.flip()
+
+    # git change to teach
+    # i like where i am at
 
 # Quit Pygame
 pygame.quit()
