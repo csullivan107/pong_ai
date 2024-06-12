@@ -35,6 +35,7 @@ score = 0
 
 # Set up the font
 font = pygame.font.SysFont(None, 48)
+large_font = pygame.font.SysFont(None, 64)  # Larger font for high score
 
 # Define difficulty increase rates
 speed_increase_rate = 0.5  # How much to increase the ball speed per point
@@ -49,6 +50,30 @@ def reset_ball():
         ball_velocity_y = random.uniform(-1, 1)
         ball_velocity_x = random.uniform(2, 5)
     score = 0
+
+def game_over_screen():
+    global running
+    while True:
+        window.fill(WHITE)
+        game_over_text = large_font.render("Game Over", True, BLACK)
+        score_text = large_font.render("Final Score: " + str(score), True, BLACK)
+        restart_text = font.render("Press R to Restart or Q to Quit", True, BLACK)
+        window.blit(game_over_text, (window_width // 2 - game_over_text.get_width() // 2, window_height // 3))
+        window.blit(score_text, (window_width // 2 - score_text.get_width() // 2, window_height // 2))
+        window.blit(restart_text, (window_width // 2 - restart_text.get_width() // 2, window_height // 2 + 50))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    reset_ball()
+                    return
+                if event.key == pygame.K_q:
+                    pygame.quit()
+                    sys.exit()
 
 # Reset the ball at the beginning
 reset_ball()
@@ -104,7 +129,7 @@ while running:
 
     # Check for collision with the left edge of the window (reset game)
     if ball_x - ball_radius <= 0:
-        reset_ball()
+        game_over_screen()
 
     # Fill the window with white
     window.fill(WHITE)
@@ -121,6 +146,9 @@ while running:
 
     # Update the display
     pygame.display.flip()
+
+    # git change to teach
+    # i like where i am at
 
 # Quit Pygame
 pygame.quit()
