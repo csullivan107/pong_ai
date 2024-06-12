@@ -23,8 +23,7 @@ rect_x = 50
 rect_y = window_height // 2 - rect_height // 2
 
 # Set up movement speed
-move_speed = int(2 * 1.5)  # Increased by 50%
-move_speed += int(move_speed * 0.5)  # Increase by 50% more
+move_speed = 5
 
 # Set up the ball
 ball_radius = 25  # Half as big
@@ -36,6 +35,9 @@ score = 0
 
 # Set up the font
 font = pygame.font.SysFont(None, 48)
+
+# Define difficulty increase rates
+speed_increase_rate = 1.0  # How much to increase the ball speed per point
 
 def reset_ball():
     global ball_x, ball_y, ball_velocity_x, ball_velocity_y, score
@@ -66,6 +68,9 @@ while running:
     if keys[pygame.K_DOWN]:
         rect_y += move_speed
 
+    # Ensure the paddle stays within the window boundaries
+    rect_y = max(min(rect_y, window_height - rect_height), 0)
+
     # Update ball position
     ball_x += ball_velocity_x
     ball_y += ball_velocity_y
@@ -80,8 +85,8 @@ while running:
         # Adjust vertical velocity based on the position of collision
         ball_velocity_y = 5 * distance_from_center
 
-        # Reverse horizontal velocity
-        ball_velocity_x = -ball_velocity_x
+        # Reverse horizontal velocity and increase speed
+        ball_velocity_x = -ball_velocity_x * (1 + speed_increase_rate / 10)
 
         # Increase the score
         score += 1
